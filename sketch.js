@@ -2,7 +2,10 @@
 var bg,bgimg,start,startimg
 var gameState=0
 var boy, playerimg,ground,groundimg,mainimg,mainbg;
-var obstacle1;
+var obstacle1, obstacle2, obstacle3, obstacle4;
+var bulletimg, coinimg;
+var obstacleGroup, coinGroup, bulletGroup;
+var score;
 
 function preload(){
 bgimg=loadImage("images/bg1.jpg")
@@ -12,6 +15,13 @@ playerimg=loadAnimation("images/r1.png","images/r2.png","images/r3.png","images/
 mainimg=loadImage("images/bg.png")
 groundimg = loadImage("images/race.png")
 obstacle1 = loadImage("images/h1.png")
+obstacle2 = loadImage("images/h2.png")
+obstacle3 = loadImage("images/h3.png")
+obstacle4 = loadImage("images/h4.png")
+bulletimg = loadImage("images/bullet.png")
+coinimg = loadImage("images/coin.png")
+
+
 }
 
 
@@ -48,6 +58,12 @@ function setup() {
  
  invisibleGround = createSprite(200,220,400,10);
  invisibleGround.visible = false
+
+ obstacleGroup = new Group();
+ coinGroup = new Group();
+ bulletGroup = new Group();
+
+ score = 0;
 }
 
 function draw() {
@@ -61,6 +77,32 @@ function draw() {
    mainbg.visible=false;
   ground.visible = false;
    boy.visible = false;
+
+   background("lightblue")
+
+   textSize(25)
+   textStyle(BOLD)
+   textFont("SNAP ITC")
+   text("INSTRUCTIONS",200,45)
+
+   textSize(15)
+   textStyle(ITALIC)
+   textFont("Calibri")
+   text("This is a obstacle couse race.",100,95)
+   text("You have to overcome obstacles and also collect coins to reach the next levels.",100,125)
+   text("Press the UP ARROW KEY to make the player jump.",100,155)
+   text("Press the DOWN ARROW KEY to reduce the player's scale,",100,185)
+   text("so that the player doesn't get hit by the bullet." ,100,205)
+   text("Press the Z key to increase the player's size once it has been reduced",100,255)
+   
+
+   textStyle(BOLD)
+   text("Press SPACE to continue",200,325)
+
+   
+
+  
+
    if(keyDown("space")&&gameState===1){
      gameState=2
    }
@@ -72,9 +114,22 @@ function draw() {
    mainbg.visible=true
   ground.visible=true
   boy.visible=true
+
+  
+  textSize(20)
+  text("Score:"+score,200,35)
+
    
   if(keyDown("up")){
     boy.velocityY=-10
+  }
+
+  if(keyDown("down")){
+    boy.scale = boy.scale-0.01
+  }
+
+  if(keyDown("z")){
+    boy.scale+=0.01
   }
  boy.velocityY=boy.velocityY+0.5
   if (ground.x < 0){
@@ -82,8 +137,18 @@ function draw() {
 
   };
 
+  if(coinGroup.isTouching(boy)){
+    score = score+30;
+  }
+ 
+
+
+
   boy.collide(invisibleGround)
   spawnObstacles()
+  spawnBullets()
+  spawnCoins()
+
  }
  
  
@@ -95,6 +160,7 @@ function draw() {
   
  
    drawSprites();
+
    
  
    if(gameState===0){
@@ -104,6 +170,7 @@ function draw() {
      mainbg.visible=false;
   ground.visible = false;
    boy.visible = false;
+
      textSize(15)
    textStyle(BOLDITALIC)
    textFont("Algerian")
@@ -121,5 +188,44 @@ function draw() {
    if(frameCount%50===0){
      var obstacle = createSprite(600,170,10,40)
      obstacle.velocityX = -6;
+     obstacle.scale = 0.1;
+
+     var rand = Math.round(random(1,4));
+    switch(rand) {
+      case 1: obstacle.addImage(obstacle1);
+              break;
+      case 2: obstacle.addImage(obstacle2);
+              break;
+      case 3: obstacle.addImage(obstacle3);
+              break;
+      case 4: obstacle.addImage(obstacle4);
+              break;
+      default: break;
+    }
+    obstacleGroup.add(obstacle)
    }
  }
+
+ function spawnBullets(){
+  if(frameCount%250===0){
+     var bullet = createSprite(600,170,10,40)
+    bullet.velocityX = -20;
+    bullet.y = Math.round(random(50,340));
+    bullet.addImage(bulletimg);
+    bullet.scale = 0.5;
+
+    bulletGroup.add(bullet)
+  }
+ }
+
+  function spawnCoins(){
+    if(frameCount%110===0){
+    var coin = createSprite(600,170,10,40)
+    coin.velocityX = -9;
+    coin.y = Math.round(random(30,280));
+    coin.addImage(coinimg);
+    coin.scale = 0.5;
+
+    coinGroup.add(coin)
+    }
+  }
